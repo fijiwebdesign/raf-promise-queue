@@ -5,11 +5,20 @@ Can be used as alternative to `fastdom` with more control of batch, sequential a
 
 ## Controlling execution
 
-`RafPromiseQueue.add(() => { .... })` will add sequentially to the queue. However execution is async, thus precedence of execution is not defined. 
-`RafPromiseQueue.addPromise((fulfill, reject) => { .... })` will chain a promise within the queue and provide your callback function with `fulfill, reject` functions as parameters exactly like `new Promise((fulfill, reject) => { ... })`. This ensures your callback is executed async yet in sequence thus providing precedence of execution. 
-`RafPromiseQueue.run()` returns a promise of all chained Promises in the queue. This allows chaining batch operations in a queue with another queue, or executing queues in parallel. 
+* `RafPromiseQueue.add(() => { .... })` will add sequentially to the queue. However execution is async, thus precedence of execution is not defined. 
 
-`RafPromiseQueue.addPromise` is equivalent to returning a Promise from `RafPromiseQueue.add(() => { .... })`. Example: `RafPromiseQueue.add(async () => await someSequentialAsyncTask())` or `RafPromiseQueue.add(() => new Promise(fulfill => someSequentialAsyncTask(fulfill)))`
+* `RafPromiseQueue.addPromise((fulfill, reject) => { .... })` will chain a promise within the queue and provide your callback function with `fulfill, reject` functions as parameters exactly like `new Promise((fulfill, reject) => { ... })`. This ensures your callback is executed async yet in sequence thus providing precedence of execution. 
+
+* `RafPromiseQueue.run()` returns a promise of all chained Promises in the queue. This allows chaining batch operations in a queue with another queue, or executing queues in parallel. 
+
+* `RafPromiseQueue.addPromise` is equivalent to returning a Promise from `RafPromiseQueue.add(() => { .... })`. 
+Example: `RafPromiseQueue.add(async () => await someSequentialAsyncTask())` or `RafPromiseQueue.add(() => new Promise(fulfill => someSequentialAsyncTask(fulfill)))`
+
+## Controlling errors
+
+*  `RafPromiseQueue.addPromise((fulfill, reject) => { .... })` executes within a Promise and thus errors can be caught on the queue level with `RafPromiseQueue.run().catch(error => {})`
+* You can catch on each queue, or combined queues `queue1.run().then(queue2.run()).catch(error => {})`
+* The queue always returns a promise so you can use error catching promises offer.
 
 
 ## Example
@@ -35,6 +44,7 @@ queue2.add(() => {
 })
 
 queue1.run().then(queue2.run())
+  .catch(error => console.log(error.message))
 
 
 ```
