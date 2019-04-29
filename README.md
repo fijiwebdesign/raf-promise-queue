@@ -1,7 +1,8 @@
 # RequestAnimationFrame Promise Queue
 
 A Promise based Queue that uses RequestAnimationFrame to execute each task. 
-Can be used as alternative to `fastdom` with more control of batch, sequential and parallel execution by using promises
+
+Similar to `fastdom` with more generic scope and flow control of any number of batch, sequential and parallel executions
 
 ## Controlling execution
 
@@ -106,6 +107,8 @@ https://github.com/wilsonpage/fastdom - Eliminates layout thrashing by batching 
 
 RafPromiseQueue is a lower level promise based queue and thus supports sequential batching operations such as the `measure()` and `mutate()` queues offered by `fastdom`
 
+For a sequential operation within each queue
+
 ```
 import { RafPromiseQueue } from 'raf-promise-queue'
 
@@ -141,6 +144,39 @@ Measure 2 complete
 Mutate 1 complete
 Mutate 2 complete
 ```
+
+For a parallel operation within each queue
+
+```
+import { RafPromiseQueue } from 'raf-promise-queue'
+
+const mutate = new RafPromiseQueue()
+const measure = new RafPromiseQueue()
+
+mutate
+  .add(() => console.log('Mutate 1 complete'))
+  .add(() => console.log('Mutate 2 complete'))
+
+measure
+  .add(() => setTimeout(() => console.log('Measure 1 complete')))
+  .add(() => console.log('Measure 2 complete'))
+
+measure.run()
+  .then(mutate.run())
+  .then(() => console.log('completed measure then mutate'))
+
+```
+
+Result will be: 
+
+```
+Measure 1 complete
+Measure 2 complete
+Mutate 2 complete
+Mutate 1 complete
+```
+
+Note: This does not provide the strict checking of mutate and measure operations on the DOM. To get that functionality use: https://github.com/wilsonpage/fastdom/blob/master/extensions/fastdom-promised.js
 
 ## Todo
 
