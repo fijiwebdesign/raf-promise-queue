@@ -1,0 +1,8 @@
+{
+  "name": "raf-promise-queue",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:fijiwebdesign/raf-promise-queue.git",
+  "author": "Gabe <gabe@fijiwebdesign.com>",
+  "license": "MIT"
+}
